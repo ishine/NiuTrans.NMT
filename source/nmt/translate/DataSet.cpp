@@ -66,8 +66,8 @@ void DataSet::LoadDataToBuffer()
         /* load words and transform them to ids */
         auto indices = SplitToPos(line, tokenDelimiter);
 
-        /* reserve the first 120 words if the input is too long */
-        size_t maxLen = indices.Size() > MAX_WORD_NUM ? MAX_WORD_NUM : indices.Size();
+        /* reserve the first maxInputLen words if the input is too long */
+        size_t maxLen = indices.Size() > maxInputLen ? maxInputLen : indices.Size();
 
         for (size_t i = 0; i < maxLen; i++) {
             auto offset = (i != (indices.Size() - 1)) ?
@@ -75,14 +75,14 @@ void DataSet::LoadDataToBuffer()
                 : line.size() - indices[i];
             string word = line.substr(indices[i], offset);
             if (srcVocab.word2id.find(word) == srcVocab.word2id.end())
-                values.Add(UNK);
+                values.Add(unkID);
             else
                 values.Add(srcVocab.word2id.at(word));
         }
 
         /* make sure that the sequence ends with EOS */
-        if (values.Size() != 0 && values[-1] != EOS)
-            values.Add(EOS);
+        if (values.Size() != 0 && values[-1] != endID)
+            values.Add(endID);
 
         Example* example = new Example;
         example->id = id;
@@ -134,7 +134,7 @@ UInt64List DataSet::LoadBatch(XTensor* batchEnc, XTensor* paddingEnc,
     float* paddingValues = new float[realBatchSize * maxLen];
 
     for (int i = 0; i < realBatchSize * maxLen; i++) {
-        batchValues[i] = PAD;
+        batchValues[i] = padID;
         paddingValues[i] = 1.0F;
     }
 

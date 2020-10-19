@@ -63,18 +63,22 @@ Config::Config(int argc, const char** argv)
     LoadParamInt(argsNum, args, "nhead", &nhead, 4);
     LoadParamInt(argsNum, args, "enclayer", &nEncLayer, 6);
     LoadParamInt(argsNum, args, "declayer", &nDecLayer, 6);
-    LoadParamInt(argsNum, args, "maxrp", &maxRP, 8);
+    LoadParamInt(argsNum, args, "maxrp", &maxRP, -1);
     LoadParamInt(argsNum, args, "embsize", &embSize, 512);
     LoadParamInt(argsNum, args, "modelsize", &modelSize, 512);
-    LoadParamInt(argsNum, args, "maxpos", &maxPosLen, 1024);
+    LoadParamInt(argsNum, args, "maxpos", &maxPosition, 1024);
+    LoadParamInt(argsNum, args, "maxsrclen", &maxSrcLen, 120);
+    LoadParamInt(argsNum, args, "maxtgtlen", &maxTgtLen, 120);
     LoadParamInt(argsNum, args, "fnnhidden", &fnnHiddenSize, modelSize * 2);
     LoadParamInt(argsNum, args, "vsize", &srcVocabSize, 10152);
     LoadParamInt(argsNum, args, "vsizetgt", &tgtVocabSize, 10152);
     LoadParamInt(argsNum, args, "padid", &padID, 1);
     LoadParamInt(argsNum, args, "startid", &startID, 2);
     LoadParamInt(argsNum, args, "endid", &endID, 2);
-    LoadParamBool(argsNum, args, "rpr", &useRPR, false);
+    LoadParamInt(argsNum, args, "unkid", &unkID, 3);
+    LoadParamBool(argsNum, args, "rpr", &useRPR, maxRP > 0);
     LoadParamBool(argsNum, args, "prenorm", &preNorm, true);
+    LoadParamBool(argsNum, args, "finalnorm", &finalNorm, true);
 
     // TODO: refactor the parameters type to support weight sharing during training
     LoadParamInt(argsNum, args, "shareemb", &shareAllEmbeddings, 0);

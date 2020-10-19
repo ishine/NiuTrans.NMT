@@ -87,6 +87,11 @@ void Trainer::Init(Config& config)
 
     adamBeta1T = 1.0F;
     adamBeta2T = 1.0F;
+
+    batchLoader.startID = config.startID;
+    batchLoader.endID = config.endID;
+    batchLoader.unkID = config.unkID;
+    batchLoader.padID = config.padID;
 }
 
 /*
@@ -146,6 +151,7 @@ void Trainer::Train(const char* fn, const char* validFN,
 
         while (!batchLoader.IsEmpty())
         {
+
             XNet net;
             net.Clear();
 
@@ -192,8 +198,10 @@ void Trainer::Train(const char* fn, const char* validFN,
             DTYPE lossLocal = lossBatch / wc;
             bool doUpdate = (!IsNAN(lossLocal) && !IsINF(lossLocal) && lossLocal < 1e3F);
 
+            net.isGradEfficient = true;
+
             if (doUpdate) {
-                /* back-propagation */
+
                 net.Backward(lossTensor);
 
                 gradStep += 1;
@@ -232,13 +240,7 @@ void Trainer::Train(const char* fn, const char* validFN,
                 break;
             }
 
-            if (step == 10) {
-                // LOG("after backward --------");
-                // lossTensor.mem->ShowMemUsage(stderr);
-                // exit(0);
-            }
-
-            if (step % 100 == 0) {
+            if (step % 30 == 0) {
                 double elapsed = GetClockSec() - startT;
                 LOG("elapsed=%.1fs, step=%d, epoch=%d, "
                     "total word=%d, total batch=%d, loss=%.3f, ppl=%.3f, lr=%.2e", 
@@ -428,7 +430,7 @@ void Trainer::Update(Model* model, const float lr)
             _ScaleAndShiftMe(v, (1.0F - adamBeta2), 0);
 
             /* v2 = m / (sqrt(v) + delta) */
-            XTensor* v2 = NewTensorBuf(v, v->devID);
+            XTensor* v2 = NewTensorBufV2(v, v->devID, v->mem);
             _Power(v, v2, 0.5F);
             _ScaleAndShiftMe(v2, 1.0F, d);
             _Div(m, v2, v2);

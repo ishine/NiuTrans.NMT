@@ -54,6 +54,12 @@ void Translator::Init(Config& config)
     sentBatch = config.sBatchSize;
     wordBatch = config.wBatchSize;
 
+    batchLoader.maxInputLen = config.maxSrcLen;
+    batchLoader.unkID = config.unkID;
+    batchLoader.padID = config.padID;
+    batchLoader.startID = config.startID;
+    batchLoader.endID = config.endID;
+
     if (beamSize > 1) {
         LOG("translating with beam search (%d)", beamSize);
         seacher = new BeamSearch();
@@ -123,7 +129,6 @@ void Translator::Translate(const char* ifn, const char* sfn,
             XTensor score;
             ((BeamSearch*)seacher)->Search(model, batchEnc, paddingEnc, output, score);
         }
-
         for (int i = 0; i < indices.Size() - 1; ++i) {
             Result* res = new Result;
             res->id = int(indices[i]);

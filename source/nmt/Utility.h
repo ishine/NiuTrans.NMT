@@ -104,7 +104,13 @@ public:
     int modelSize;
 
     /* the maximum length in positional embedding */
-    int maxPosLen;
+    int maxPosition;
+
+    /* the maximum length for the source sequence */
+    int maxSrcLen;
+
+    /* the maximum length for the target sequence */
+    int maxTgtLen;
 
     /* the dimension of fnn hidden layer */
     int fnnHiddenSize;
@@ -118,6 +124,9 @@ public:
     /* the padding id */
     int padID;
 
+    /* the unk id */
+    int unkID;
+
     /* start symbol */
     int startID;
 
@@ -126,6 +135,9 @@ public:
 
     /* indicates whether the model uses pre-norm */
     bool preNorm;
+
+    /* add LN to the encoder/decoder output or not */
+    bool finalNorm;
 
     /* indicates whether the model is running for machine translation */
     bool isMT;
