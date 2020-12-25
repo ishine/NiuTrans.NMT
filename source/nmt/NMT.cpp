@@ -30,28 +30,40 @@ namespace nmt
 
 int NMTMain(int argc, const char** argv)
 {
-    if (argc == 0)
-        return 1;
+    if (argc == 0) {
+        fprintf(stderr, "Useage\n\n");
+        fprintf(stderr, "  NiuTrans.NMT -train [options] \n");
+        fprintf(stderr, "  NiuTrans.NMT -test  [options] \n");
+        exit(0);
+    }
 
     /* load configurations */
     Config config(argc, argv);
 
-    srand(1);
+    srand(config.seed);
 
     /* training */
     if (strcmp(config.trainFN, "") != 0) {
         
         Model model;
         model.InitModel(config);
+
+        TensorList params;
+        model.GetParams(params);
+        int count = 0;
+        for (int i = 0; i < params.count; i++)
+            count += params[i]->unitNum;
+        LOG("number of parameters: %d", count);
+
         Trainer trainer;
         trainer.Init(config);
         trainer.Train(config.trainFN, config.validFN, config.modelFN, &model);
     }
 
     /* translating */
-    if (strcmp(config.testFN, "") != 0 && strcmp(config.outputFN, "") != 0) {
+    else if (strcmp(config.testFN, "") != 0 && strcmp(config.outputFN, "") != 0) {
         
-        /* disable grad flow */
+        /* disable gradient flow */
         DISABLE_GRAD;
 
         Model model;
